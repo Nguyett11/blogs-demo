@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
@@ -10,14 +10,26 @@ import { mutate } from "swr";
 interface IProps {
   showModalCreate: boolean;
   setShowModalCreate: (v: boolean) => void;
+  blog: IBlog | null;
+  setBlog: (v: IBlog | null) => void;
 }
 
-function CreateModal(props: IProps) {
-  const { showModalCreate, setShowModalCreate } = props;
+function UpdateModal(props: IProps) {
+  const { showModalCreate, setShowModalCreate, blog, setBlog } = props;
 
+  const [id, setId] = useState<number>(0);
   const [title, setTitle] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [content, setContent] = useState<string>("");
+
+  useEffect(() => {
+    if (blog && blog.id) {
+      setId(blog.id);
+      setTitle(blog.title);
+      setAuthor(blog.author);
+      setContent(blog.content);
+    }
+  }, [blog]);
 
   const handleSubmit = () => {
     if (!title || !author || !content) {
@@ -25,8 +37,8 @@ function CreateModal(props: IProps) {
       return;
     }
 
-    fetch("http://localhost:8000/blogs", {
-      method: "POST",
+    fetch(`http://localhost:8000/blogs/${id}`, {
+      method: "PUT",
       headers: {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -40,11 +52,11 @@ function CreateModal(props: IProps) {
       .then((res) => res.json())
       .then((res) => {
         if (res) {
-          toast.success("Created succeed..!");
+          toast.success("Updated succeed..!");
           handleCloseModal();
           mutate("http://localhost:8000/blogs");
         } else {
-          toast.error("Created failed..!");
+          toast.error("Updated failed..!");
         }
       });
   };
@@ -53,6 +65,7 @@ function CreateModal(props: IProps) {
     setTitle("");
     setAuthor("");
     setContent("");
+    setBlog(null);
     setShowModalCreate(false);
   };
 
@@ -66,7 +79,7 @@ function CreateModal(props: IProps) {
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add new Blog</Modal.Title>
+          <Modal.Title>Update Blog</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -112,4 +125,4 @@ function CreateModal(props: IProps) {
   );
 }
 
-export default CreateModal;
+export default UpdateModal;
