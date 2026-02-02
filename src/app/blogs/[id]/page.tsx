@@ -1,3 +1,5 @@
+import ViewDetailClient from "./ViewDetailClient";
+
 const ViewDetailPage = async ({
   params,
 }: {
@@ -5,18 +7,7 @@ const ViewDetailPage = async ({
 }) => {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:8000/blogs/${id}`, {
-    cache: "no-store",
-  });
-
-  const blog = await res.json();
-
-  return (
-    <div>
-      <h1>{blog.title}</h1>
-      <p>{blog.content}</p>
-    </div>
-  );
+  return <ViewDetailClient id={id} />;
 };
 
 export default ViewDetailPage;
